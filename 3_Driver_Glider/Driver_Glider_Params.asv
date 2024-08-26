@@ -1,0 +1,146 @@
+%% Driver Glider Params
+%TODO: Describe the model, non, torque limited, etc. 
+%TODO: DESCRIBE HOW THIS IS FOR CEDAR
+
+% Run this file to fill the workspace with the vehicle parameters, load the
+% drive cycle, run the EV_Simple Simulink simulation, and plot the results
+clc;clear;close all
+%% Model Parameters
+
+%Inport Drive Cycle Data
+driveCycleData = readmatrix('time_speed_elevation_distance_theta_data.xlsx');
+ahovwxyz
+% Extract time and speed columns
+time = driveCycleData(:, 1);
+speed = driveCycleData(:, 2);
+elevation = driveCycleData(:,3);
+distance = driveCycleData(:,4);
+theta = driveCycleData(:,5);
+
+% Create time series data for time-speed, and time-theta
+timeSpeedData = timeseries(speed,time);
+timeThetaData = timeseries(theta,time);
+
+%Time Step
+time_step = time(2);
+
+%Simulation Params
+% StopTime = time(end);
+StopTime = 100;
+
+%Environment
+airDensity = 1.293;
+gravity = 9.81;
+
+%Vehicle
+rollingResistCoeff = 0.01;
+massVeh = 173; %kg
+aeroDragCoeff = 0.17;
+frontArea = 0.951; %m^2
+Ndriving = 1; 
+Ndriven = 1;
+GR = Ndriven/Ndriving; %teeth driving / teeth driven
+r_wheel = .254; %radius of wheel
+torqueMax = 15; % Torque at driving wheel
+tractiveForceMax = torqueMax/r_wheel;
+
+%Laps
+numLaps = 10; %For plotting later
+
+%PID Controller
+P_Driver = 7500;
+I_Driver = 1;
+D_Driver = 0;
+
+%% Simulate
+sim('Driver_Glider.slx')
+
+%% Plot Results
+figure(1)
+scatter(motorSpeedOut, motorTorqueOut);
+xlabel('Speed (radps)')
+ylabel('Torque (Nm)')
+title('Motor Torque-Speed Operating Points')
+grid on
+
+figure(2)
+%Total Tractive Power
+subplot(3,2,1)
+plot(simTime, results(:,1))
+xlabel('Time (s)')
+ylabel('Power (W)')
+grid on
+
+%Total Tractive Energy kWh
+subplot(3,2,2)
+plot(simTime, results(:,2))
+xlabel('Time (s)')
+ylabel('Energy (kWh)')
+grid on
+
+%Propelling Energy
+subplot(3,2,3)
+plot(simTime, results(:,3))
+xlabel('Time (s)')
+ylabel('Propelling Energy (J)')
+grid on
+
+%Braking Energy
+subplot(3,2,4)
+plot(simTime, results(:,4))
+xlabel('Time (s)')
+ylabel('Braking Energy (J)')
+grid on
+
+%Vehicle Position
+subplot(3,2,5)
+plot(simTime, results(:,5))
+xlabel('Time (s)')
+ylabel('Vehicle Position (m)')
+grid on
+
+%Vehicle Velocity
+subplot(3,2,6)
+plot(simTime, results(:,6))
+xlabel('Time (s)')
+ylabel('Velocity (m/s)')
+grid on
+
+%Tractive Force vs Time
+figure(3)
+plot(simTime,tractiveForceOut)
+xlabel('Time (s)')
+ylabel('Tractive Force (N)')
+grid on
+
+%Distance vs Elevation & Distance vs Tractive Force
+%To see where braking occurs
+%scale it down to size?
+
+figure(4)
+hold on
+maxElevation = max(elevation);
+maxTractiveForce = max(tractiveForceOut);
+maxSpeed = max(results(:,6));
+plot(distance,elevation/maxElevation)
+
+%%PLOT tractive force as a function of distance THAT'S THE SAME SIZE AS
+%%ABOVE
+lapSize = floor(length(tractiveForceOut)/numLaps);
+startLap = 2;
+endLap = 3;
+tractiveForceTruncated = tractiveForceOut([startLap*lapSize:endLap*lapSize]); %pick intermediate lap
+
+
+
+plot(results([1:size(tractiveForceOut)/numLaps],5),tractiveForceOut(1:size(tractiveForceOut)/numLaps)/maxTractiveForce)
+plot speed vs position
+hold off
+xlabel('Distance Along Track (m)')
+legend('Normalized Relative Elevation (m)', 'Normalized Tractive Force')
+grid on
+
+speed position
+elevation position
+speed command position
+
