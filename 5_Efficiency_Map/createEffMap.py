@@ -20,22 +20,22 @@ def concatenate_data(data_list):
     concatenated_data = np.vstack(data_list)
     return concatenated_data
 
-# Normalize RPM and Torque
 def normalize_data(data, TorqueMax, RADPS_Max):
     RADPS = data[:, 0]
     TORQUE = data[:, 1]
     z = data[:, 2]
-    
+
     # Normalizing RADPS and Torque
-    RADPS_NORM = (RADPS - RADPS.min()) / (RADPS_Max - RADPS.min()) * RADPS_Max
-    Torque_norm = (TORQUE - TORQUE.min()) / (TorqueMax - TORQUE.min()) * TorqueMax
-    
+    RADPS_NORM = (RADPS - RADPS.min()) / (RADPS.max() - RADPS.min()) * RADPS_Max
+    Torque_norm = (TORQUE - TORQUE.min()) / (TORQUE.max() - TORQUE.min()) * TorqueMax
+
     # Mirroring Torque about the middle of the Torque-axis
-    Torque_mid = TorqueMax / 2  # Middle of Torque-axis
-    Torque_mirrored = Torque_mid + (Torque_mid - Torque_norm)
-    
+    Torque_mid = TorqueMax / 2
+    Torque_mirrored = Torque_mid - (Torque_norm - Torque_mid)
+
     normalized_data = np.column_stack((RADPS_NORM, Torque_mirrored, z))
     return normalized_data
+
 
 # Create custom polynomial features for IPM
 def create_ipm_polynomial_features(X):
