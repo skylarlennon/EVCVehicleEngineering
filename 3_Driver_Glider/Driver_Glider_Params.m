@@ -90,7 +90,7 @@ title('Driver Glider Drive Cycle Adherance')
 %calculate the drive cycle adherance %
 total_error = sum(abs(referenceVelocityOut - actualVelocityOut));
 total_adherance = sum(abs(referenceVelocityOut));
-drive_cycle_adherance = (1-(total_error/total_adherance))*100
+DriverGlider_drive_cycle_adherance = (1-(total_error/total_adherance))*100
 
 %% Plot Tractive Force Over Time w Elevation
 figure(2)

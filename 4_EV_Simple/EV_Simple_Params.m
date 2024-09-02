@@ -98,6 +98,8 @@ vehPosOut = results(:,28);
 
 %% Plot Drive Cycle Adherance Over Time
 figure(1)
+
+subplot(2,1,1)
 grid on
 hold on
 
@@ -121,10 +123,10 @@ title('EV Simple Drive Cycle Adherance Over Time')
 %calculate the drive cycle adherance %
 total_error = sum(abs(referenceVelocityOut - actualVelocityOut));
 total_adherance = sum(abs(referenceVelocityOut));
-drive_cycle_adherance_time = (1-(total_error/total_adherance))*100
+EVSimple_drive_cycle_adherance = (1-(total_error/total_adherance))*100
 
 %% Plot Tractive Force Over Time w Elevation
-figure(2)
+subplot(2,1,2)
 grid on
 hold on
 

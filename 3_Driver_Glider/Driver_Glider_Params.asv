@@ -65,8 +65,7 @@ brakingEnergyOut = results(:,4);
 vehiclePosOut = results(:,5);
 vehicleVeloOut = results(:,6);
 
-%% Plot Results
-% Drive Cycle Adherance
+%% Plot Drive Cycle Adherance Over Time
 figure(1)
 grid on
 hold on
@@ -74,41 +73,47 @@ hold on
 yyaxis left
 plot(tout, referenceVelocityOut,'-b')
 plot(tout, actualVelocityOut,'-r')
-xlabel('Time (s)')
 ylabel('Velocity (m/s)')
-xlim([0 (tout(end)./numLaps).*3]) %see the first 3 laps of drive cycle adherance
 
 yyaxis right
 plot(tout, elevation,'-k')
-ylabel('Elevation (m)')
+h = ylabel('Elevation (m)');
+set(h,'Color','black')
+ax = gca;
+ax.YColor = 'black';
+
 hold off
-
-legend('Drive Cycle Reference Velocity','Simulated Vehicle Velocity', 'Elevation')
+xlim([0 tout(end)/numLaps*3])
+xlabel('Time (s)')
+legend('Drive Cycle Velocity','Simulated Velocity', 'Elevation')
 title('Driver Glider Drive Cycle Adherance')
-
 %calculate the drive cycle adherance %
 total_error = sum(abs(referenceVelocityOut - actualVelocityOut));
 total_adherance = sum(abs(referenceVelocityOut));
-drive_cycle_adherance = (1-(total_error/total_adherance))*100
+DriverGlider_drive_cycle_adherance = (1-(total_error/total_adherance))*100\
 
-figure(4)
+%% Plot Tractive Force Over Time w Elevation
+figure(2)
+grid on
 hold on
-yyaxis right
-plot(tout,positiveTractiveForceOut,'-b')
-plot(tout,frictionBrakingForceOut,'-r')
-ylabel('Positive Tractive Force & Friction Braking Force (N)')
 
 yyaxis left
-plot(tout,elevation)
-ylabel ('Elevation (m)')
-xlabel('Time (s)')
+plot(tout,positiveTractiveForceOut,'-b')
+plot(tout,frictionBrakingForceOut,'-r')
+ylabel('Tractive Force (N)')
 
-legend('Positive Tractive Force','Friction Braking Force','Elevation')
-xlim([0 tout(end)/numLaps*3]) %plot 3 laps
-title('Driver Glider Motor Tractive Force & Friction Braking Force vs Elevation')
+yyaxis right
+plot(time,elevation,'-k')
+h = ylabel('Elevation (m)');
+set(h,'Color','black')
+ax = gca;
+ax.YColor = 'black';
+
 hold off
-
-
+xlim([0 tout(end)/numLaps*3]) %plot 3 laps
+xlabel('Time (s)')
+legend('Positive Tractive Force','Friction Braking Force','Elevation')
+title('Driver Glider Motor Tractive Force & Friction Braking Force vs Elevation')
 
 % % Torque Speed Operating Points
 % % figure(2)
