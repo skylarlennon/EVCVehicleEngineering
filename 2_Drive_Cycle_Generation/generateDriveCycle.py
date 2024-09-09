@@ -103,14 +103,29 @@ def save_data(event):
         np.savetxt('speed_vs_distance.txt', np.array(speed_points), fmt='%0.2f', delimiter=',')
         print('Speed vs Distance data saved')
 
+# Clear all points
+def clear_points(event):
+    global speed_points
+    speed_points = []
+    update_plot()
+    print('All points cleared')
+
 # Connect the click, motion, and release events
 fig.canvas.mpl_connect('button_press_event', on_click)
 fig.canvas.mpl_connect('motion_notify_event', on_motion)
 fig.canvas.mpl_connect('button_release_event', on_release)
 
-# Add a save button
-ax_save_button = plt.axes([0.7, 0.02, 0.1, 0.05])
-button = plt.Button(ax_save_button, 'Save Data')
-button.on_clicked(save_data)
+# Adjust the figure size to accommodate the buttons
+fig.set_size_inches(10, 6)  # Adjust as needed
+
+# Add a clear button on the left side
+ax_clear_button = plt.axes([0.05, 0.02, 0.1, 0.04])
+button_clear = plt.Button(ax_clear_button, 'Clear Points')
+button_clear.on_clicked(clear_points)
+
+# Add a save button on the right side
+ax_save_button = plt.axes([0.85, 0.02, 0.1, 0.04])
+button_save = plt.Button(ax_save_button, 'Save Data')
+button_save.on_clicked(save_data)
 
 plt.show()
