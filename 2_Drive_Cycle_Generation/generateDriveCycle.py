@@ -10,24 +10,36 @@ elevation = df['elevation'].values
 speed_points = []
 dragging_point_idx = None  # To track which point is being dragged
 
+# Set min and max speed for the speed y-axis
+MIN_SPEED = 0
+MAX_SPEED = 30  # Adjust this value as needed
+
 # Create figure and plot
-fig, ax = plt.subplots()
-ax.plot(distance, elevation, '-b', label='Elevation')
-ax.set_xlabel('Distance (m)')
-ax.set_ylabel('Elevation (m)')
-point_plot, = ax.plot([], [], 'ro', markerfacecolor='r', markersize=8)
-line_plot, = ax.plot([], [], '-r')  # Line between points
+fig, ax1 = plt.subplots()
+ax1.plot(distance, elevation, '-b', label='Elevation')
+ax1.set_xlabel('Distance (m)')
+ax1.set_ylabel('Elevation (m)', color='b')
+ax1.tick_params(axis='y', labelcolor='b')
+
+# Create a twin axis for speed
+ax2 = ax1.twinx()
+ax2.set_ylabel('Speed (m/s)', color='r')
+ax2.tick_params(axis='y', labelcolor='r')
+ax2.set_ylim(MIN_SPEED, MAX_SPEED)  # Set fixed y-axis limits for speed
+
+point_plot, = ax2.plot([], [], 'ro', markerfacecolor='r', markersize=4)
+line_plot, = ax2.plot([], [], '-r')  # Line between points
 
 # Add point with click
 def on_click(event):
     global dragging_point_idx
-    if event.inaxes != ax:
+    if event.inaxes != ax1 and event.inaxes != ax2:
         return
     
     if event.button == 1:  # Left-click to add or start dragging
         dragging_point_idx = get_closest_point_idx(event.xdata, event.ydata)
         if dragging_point_idx is None:  # No nearby point, add new point
-            x, y = event.xdata, event.ydata
+            x, y = event.xdata, np.clip(event.ydata, MIN_SPEED, MAX_SPEED)
             speed_points.append([x, y])
             update_plot()
     elif event.button == 3:  # Right-click to remove nearest point
@@ -36,9 +48,9 @@ def on_click(event):
 # Handle mouse motion (dragging)
 def on_motion(event):
     global dragging_point_idx
-    if dragging_point_idx is not None and event.inaxes == ax:
-        # Update the position of the dragged point
-        speed_points[dragging_point_idx] = [event.xdata, event.ydata]
+    if dragging_point_idx is not None and (event.inaxes == ax1 or event.inaxes == ax2):
+        # Update the position of the dragged point, clamping y to the speed range
+        speed_points[dragging_point_idx] = [event.xdata, np.clip(event.ydata, MIN_SPEED, MAX_SPEED)]
         update_plot()
 
 # Handle mouse release (stop dragging)
