@@ -1,5 +1,6 @@
 %% Generating Custom Drive Cycle Data
-% TODO: ADD INTRO
+
+%%JUST MAKE IT SO PEOPLE HAVE TO DRAW ON A MAP BASED ON THEIR MAX SPEEDS
 
 clc; clear; close all;
 
@@ -14,7 +15,7 @@ rawElevation = LinearizedTrack(:,2);
 trackLength = rawDistance(end); 
 
 %% Expand Track Data for Number of Laps in Race
-numLaps = 10;
+numLaps = 1;
 cumulativeDistance = [];
 cumulativeElevation = [];
 for i = 1:numLaps
@@ -47,124 +48,23 @@ theta(i) = theta(i-1);
 
 segments = [
     %lap1
-    0, 8, 200;%0m-200m     
-    8, 8, 85;%200m-285m    
-    8, 2, 55;%285m-340m    
-    2, 6, 25;%340m-365m    
-    6, 0, 35;%365m-400m    
-    0, 4, 50;%400m-450m     
-    4, 2, 30;%450m-480m   
-    2, 12, 120;%480m-600m  
-    12, 12, 300;%600m-900m
-    12, 8, 540;%900m-1440m
-
-    %lap2
-    8, 8, 200;%0m-200m     
-    8, 8, 85;%200m-285m    
-    8, 2, 55;%285m-340m    
-    2, 6, 25;%340m-365m    
-    6, 0, 35;%365m-400m    
-    0, 4, 50;%400m-450m     
-    4, 2, 30;%450m-480m   
-    2, 12, 120;%480m-600m  
-    12, 12, 300;%600m-900m
-    12, 8, 540;%900m-1440m
-
-    %lap3
-    8, 8, 200;%0m-200m     
-    8, 8, 85;%200m-285m    
-    8, 2, 55;%285m-340m    
-    2, 6, 25;%340m-365m    
-    6, 0, 35;%365m-400m    
-    0, 4, 50;%400m-450m     
-    4, 2, 30;%450m-480m   
-    2, 12, 120;%480m-600m  
-    12, 12, 300;%600m-900m
-    12, 8, 540;%900m-1440m
-
-    %lap4
-    8, 8, 200;%0m-200m     
-    8, 8, 85;%200m-285m    
-    8, 2, 55;%285m-340m    
-    2, 6, 25;%340m-365m    
-    6, 0, 35;%365m-400m    
-    0, 4, 50;%400m-450m     
-    4, 2, 30;%450m-480m   
-    2, 12, 120;%480m-600m  
-    12, 12, 300;%600m-900m
-    12, 8, 540;%900m-1440m
-
-    %lap5
-    8, 8, 200;%0m-200m     
-    8, 8, 85;%200m-285m    
-    8, 2, 55;%285m-340m    
-    2, 6, 25;%340m-365m    
-    6, 0, 35;%365m-400m    
-    0, 4, 50;%400m-450m     
-    4, 2, 30;%450m-480m   
-    2, 12, 120;%480m-600m  
-    12, 12, 300;%600m-900m
-    12, 8, 540;%900m-1440m
-
-    %lap6
-    8, 8, 200;%0m-200m     
-    8, 8, 85;%200m-285m    
-    8, 2, 55;%285m-340m    
-    2, 6, 25;%340m-365m    
-    6, 0, 35;%365m-400m    
-    0, 4, 50;%400m-450m     
-    4, 2, 30;%450m-480m   
-    2, 12, 120;%480m-600m  
-    12, 12, 300;%600m-900m
-    12, 8, 540;%900m-1440m
-
-    %lap7
-    8, 8, 200;%0m-200m     
-    8, 8, 85;%200m-285m    
-    8, 2, 55;%285m-340m    
-    2, 6, 25;%340m-365m    
-    6, 0, 35;%365m-400m    
-    0, 4, 50;%400m-450m     
-    4, 2, 30;%450m-480m   
-    2, 12, 120;%480m-600m  
-    12, 12, 300;%600m-900m
-    12, 8, 540;%900m-1440m
-
-    %lap8
-    8, 8, 200;%0m-200m     
-    8, 8, 85;%200m-285m    
-    8, 2, 55;%285m-340m    
-    2, 6, 25;%340m-365m    
-    6, 0, 35;%365m-400m    
-    0, 4, 50;%400m-450m     
-    4, 2, 30;%450m-480m   
-    2, 12, 120;%480m-600m  
-    12, 12, 300;%600m-900m
-    12, 8, 540;%900m-1440m
-
-    %lap9
-    8, 8, 200;%0m-200m     
-    8, 8, 85;%200m-285m    
-    8, 2, 55;%285m-340m    
-    2, 6, 25;%340m-365m    
-    6, 0, 35;%365m-400m    
-    0, 4, 50;%400m-450m     
-    4, 2, 30;%450m-480m   
-    2, 12, 120;%480m-600m  
-    12, 12, 300;%600m-900m
-    12, 8, 540;%900m-1440m
-
-    %lap10
-    8, 8, 200;%0m-200m     
-    8, 8, 85;%200m-285m    
-    8, 2, 55;%285m-340m    
-    2, 6, 25;%340m-365m    
-    6, 0, 35;%365m-400m    
-    0, 4, 50;%400m-450m     
-    4, 2, 30;%450m-480m   
-    2, 12, 120;%480m-600m  
-    12, 12, 300;%600m-900m
-    12, 0, 540;%900m-1440m
+    0, 7, 200;%0m-200m     
+    7, 7.75, 25;%200-225
+    7.75, 8, 25;%225-250
+    8, 5, 25;%250-275 
+    5, 3, 25;%275-300
+    2, 2, 25;%300-325
+    2, 3, 35;%325-360
+    3, 1, 15;%360-375
+    1, 0, 15;%375-390
+    0, 1, 15;%390-405
+    1, 3, 30;%405-435
+    3, 4, 30;%435-465
+    4, 5, 15;%465-480
+    5, 9, 85;%480-565
+    9, 12, 95;%565-660
+    12, 12, 240;%660-900
+    12, 0, 540;%900-1440
 ];
 
 %Check for matching track lengths
@@ -242,7 +142,7 @@ writematrix(DriveCycleData, filename);
 disp(['Time-Speed-Elevation-Distance data exported to ', filename]);
 
 %% Plot Results
-% Elevation vs Distance and Speed vs Distance (Whole Race)
+% Elevation vs Distance and Speed vs Distance
 figure(1)
 hold on
 yyaxis left
@@ -251,19 +151,20 @@ ylabel('Relative Elevation (m)')
 yyaxis right
 plot(distance,speed)
 ylabel('Speed (m/s)')
+xlabel('Distance Along Track (m)')
 hold off
 grid on
 
-% Elevation vs Distance and Speed vs Distance (One Lap)
+% Elevation vs Time and Speed vs Time
 figure(2)
 hold on
 yyaxis left
-plot(cumulativeDistance,cumulativeElevation)
+plot(interpolatedTime,cumulativeElevation)
 ylabel('Relative Elevation (m)')
 yyaxis right
-plot(distance,speed)
+plot(interpolatedTime,interpolatedSpeed)
 ylabel('Speed (m/s)')
-xlim([0 trackLength])
+xlabel('Time (s)')
 hold off
 grid on
 
