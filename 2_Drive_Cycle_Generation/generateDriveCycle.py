@@ -2,6 +2,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
+# TODO: ADD CLEAR AND ZOOM FUNCTIONALITIES
+
 df = pd.read_csv('sonomaLinearized.csv', header=None, names=['distance', 'elevation'])
 distance = df['distance'].values
 elevation = df['elevation'].values
@@ -11,12 +13,14 @@ speed_points = []
 dragging_point_idx = None  # To track which point is being dragged
 
 # Set min and max speed for the speed y-axis
-MIN_SPEED = 0
-MAX_SPEED = 30  # Adjust this value as needed
+MIN_SPEED = 0   #m/s
+MAX_SPEED = 15  #m/s
 
 # Create figure and plot
 fig, ax1 = plt.subplots()
+ax1.grid(True, which='both', axis='both')
 ax1.plot(distance, elevation, '-b', label='Elevation')
+ax1.set_title('Custom Drive Cycle Generator')
 ax1.set_xlabel('Distance (m)')
 ax1.set_ylabel('Elevation (m)', color='b')
 ax1.tick_params(axis='y', labelcolor='b')
@@ -29,6 +33,7 @@ ax2.set_ylim(MIN_SPEED, MAX_SPEED)  # Set fixed y-axis limits for speed
 
 point_plot, = ax2.plot([], [], 'ro', markerfacecolor='r', markersize=4)
 line_plot, = ax2.plot([], [], '-r')  # Line between points
+
 
 # Add point with click
 def on_click(event):
