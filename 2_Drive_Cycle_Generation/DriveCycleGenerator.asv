@@ -15,7 +15,7 @@ rawElevation = LinearizedTrack(:,2);
 trackLength = rawDistance(end); 
 
 %% Load Drive Cycle Data
-DC_distance_speed_data = readmatrix('speed_vs_distance.csv');
+DC_distance_speed_data = readmatrix('speed1_speed2_distance.csv');
 DC_Track_Distance = sum(DC_distance_speed_data(:,3));
 
 %% Check for matching track lengths
