@@ -20,7 +20,7 @@ MAX_SPEED = 15  #m/s
 fig, ax1 = plt.subplots()
 ax1.grid(True, which='both', axis='both')
 ax1.plot(distance, elevation, '-b', label='Elevation')
-ax1.set_title('Custom Drive Cycle Generator')
+# ax1.set_title('Custom Drive Cycle Generator', fontsize=14)
 ax1.set_xlabel('Distance (m)')
 ax1.set_ylabel('Elevation (m)', color='b')
 ax1.tick_params(axis='y', labelcolor='b')
@@ -34,8 +34,9 @@ ax2.set_ylim(MIN_SPEED, MAX_SPEED)  # Set fixed y-axis limits for speed
 point_plot, = ax2.plot([], [], 'ro', markerfacecolor='r', markersize=4)
 line_plot, = ax2.plot([], [], '-r')  # Line between points
 
-# Text to display total time
-total_time_text = ax1.text(0.5, 1.05, '', transform=ax1.transAxes, fontsize=12, ha='center')
+# Display labels under the title
+race_time_label = ax1.text(0.5, 1.05, '', ha='center', va='center', transform=ax1.transAxes, fontsize=10, color='black')
+max_acceleration_label = ax1.text(0.5, 1.02, '', ha='center', va='center', transform=ax1.transAxes, fontsize=10, color='black')
 
 # Add point with click
 def on_click(event):
@@ -49,7 +50,6 @@ def on_click(event):
             x, y = event.xdata, np.clip(event.ydata, MIN_SPEED, MAX_SPEED)
             speed_points.append([x, y])
             update_plot()
-            calculate_total_time()  # Update total time when adding a point
     elif event.button == 3:  # Right-click to remove nearest point
         remove_point(event)
 
@@ -60,7 +60,6 @@ def on_motion(event):
         # Update the position of the dragged point, clamping y to the speed range
         speed_points[dragging_point_idx] = [event.xdata, np.clip(event.ydata, MIN_SPEED, MAX_SPEED)]
         update_plot()
-        calculate_total_time()  # Update total time when moving a point
 
 # Handle mouse release (stop dragging)
 def on_release(event):
@@ -79,10 +78,37 @@ def update_plot():
     # Draw lines between the points
     if len(speed_points) > 1:
         line_plot.set_data(x_vals, y_vals)
+        display_race_time_and_acceleration()
     else:
         line_plot.set_data([], [])
     
     plt.draw()
+
+# Calculate and display the race time and max acceleration
+def display_race_time_and_acceleration():
+    total_time = 0
+    max_acceleration = 0
+    
+    if len(speed_points) > 1:
+        for i in range(1, len(speed_points)):
+            initial_speed = speed_points[i-1][1]  # Previous point's speed
+            final_speed = speed_points[i][1]      # Current point's speed
+            distance_traveled = speed_points[i][0] - speed_points[i-1][0]  # Distance between points
+            
+            # Time = distance / average speed
+            avg_speed = (initial_speed + final_speed) / 2
+            if avg_speed != 0:  # Avoid division by zero
+                time = distance_traveled / avg_speed
+                total_time += time
+            
+            # Acceleration = (final speed - initial speed) / time
+            if time != 0:  # Avoid division by zero
+                acceleration = (final_speed - initial_speed) / time
+                max_acceleration = max(max_acceleration, abs(acceleration))
+    
+    # Display total race time and max acceleration
+    race_time_label.set_text(f'Total Race Time: {total_time:.2f} s')
+    max_acceleration_label.set_text(f'Max Acceleration: {max_acceleration:.2f} m/s²')
 
 # Remove the point closest to the click
 def remove_point(event):
@@ -90,7 +116,6 @@ def remove_point(event):
     if closest_idx is not None:
         del speed_points[closest_idx]
         update_plot()
-        calculate_total_time()  # Update total time when removing a point
 
 # Get the index of the point closest to (x, y), or None if too far
 def get_closest_point_idx(x_click, y_click, threshold=2.5):
@@ -101,26 +126,6 @@ def get_closest_point_idx(x_click, y_click, threshold=2.5):
     if distances[closest_idx] < threshold ** 2:  # Increase threshold for detecting points
         return closest_idx
     return None
-
-# Calculate and display the total time to run the race
-def calculate_total_time():
-    total_time = 0.0
-    if len(speed_points) > 1:
-        for i in range(1, len(speed_points)):
-            initial_speed = speed_points[i-1][1]
-            final_speed = speed_points[i][1]
-            distance = speed_points[i][0] - speed_points[i-1][0]
-            
-            if initial_speed == 0 and final_speed == 0:
-                continue  # Skip if both speeds are zero, to avoid division by zero
-            
-            # Calculate time using average speed between two points
-            avg_speed = (initial_speed + final_speed) / 2
-            time = distance / avg_speed
-            total_time += time
-    
-    total_time_text.set_text(f'Total Time: {total_time:.2f} seconds')
-    plt.draw()
 
 # Save speed vs distance points to a CSV file with initial speed, final speed, and distance between points
 def save_data(event):
@@ -154,8 +159,30 @@ def clear_points(event):
     global speed_points
     speed_points = []
     update_plot()
-    calculate_total_time()  # Reset total time after clearing points
     print('All points cleared')
+
+# New function to load data from CSV
+def load_data(event):
+    global speed_points
+    try:
+        df = pd.read_csv('speed_vs_distance.csv')
+        speed_points = []
+        cumulative_distance = 0
+        for _, row in df.iterrows():
+            initial_speed = row['Initial Speed (m/s)']
+            final_speed = row['Final Speed (m/s)']
+            distance = row['Distance Traveled (m)']
+            
+            speed_points.append([cumulative_distance, initial_speed])
+            cumulative_distance += distance
+            speed_points.append([cumulative_distance, final_speed])
+        
+        update_plot()
+        print('Data loaded from speed_vs_distance.csv')
+    except FileNotFoundError:
+        print('Error: speed_vs_distance.csv not found')
+    except Exception as e:
+        print(f'Error loading data: {e}')
 
 # Connect the click, motion, and release events
 fig.canvas.mpl_connect('button_press_event', on_click)
@@ -174,5 +201,10 @@ button_clear.on_clicked(clear_points)
 ax_save_button = plt.axes([0.85, 0.02, 0.1, 0.04])
 button_save = plt.Button(ax_save_button, 'Save Data')
 button_save.on_clicked(save_data)
+
+# Add a load button in the middle
+ax_load_button = plt.axes([0.45, 0.02, 0.1, 0.04])
+button_load = plt.Button(ax_load_button, 'Load Data')
+button_load.on_clicked(load_data)
 
 plt.show()

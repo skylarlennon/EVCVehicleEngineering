@@ -31,22 +31,22 @@ airDensity = 1.293;
 gravity = 9.81;
 
 %Vehicle
-maxBrakeForce = 2000; %N
+maxBrakeForce = -400; %N
 rollingResistCoeff = 0.01;
 massVeh = 173; %kg
 aeroDragCoeff = 0.17;
 frontArea = 0.951; %m^2
 cdaf = airDensity*aeroDragCoeff;
 
-%Motor
+%Motor (KDE Direct 7208XF)
 motorMaxTorque = 15;
 motorMaxPower = 2e3;
 motorMaxSpeed = 2000/60*2*pi; %radps
 
 %Drivetrain
 r_wheel = .254; %radius of wheel
-Ndriving = 6; 
-Ndriven = 24;
+Ndriving = 1; 
+Ndriven = 4;
 GR = Ndriven/Ndriving; %teeth driving / teeth driven
 %To calculate drivetrain losses
 Spinloss = 6;
@@ -104,8 +104,8 @@ grid on
 hold on
 
 yyaxis left
-plot(tout, referenceVelocityOut,'-b')
-plot(tout, actualVelocityOut,'-r')
+plot(tout, speedCommand,'-b')
+plot(tout, speedVehicle,'-r')
 ylabel('Velocity (m/s)')
 
 yyaxis right
@@ -121,8 +121,8 @@ xlabel('Time (s)')
 legend('Drive Cycle Velocity','Simulated Velocity','Elevation')
 title('EV Simple Drive Cycle Adherance Over Time')
 %calculate the drive cycle adherance %
-total_error = sum(abs(referenceVelocityOut - actualVelocityOut));
-total_adherance = sum(abs(referenceVelocityOut));
+total_error = sum(abs(speedCommand - speedVehicle));
+total_adherance = sum(abs(speedCommand));
 EVSimple_drive_cycle_adherance = (1-(total_error/total_adherance))*100
 
 %% Plot Tractive Force Over Time w Elevation
