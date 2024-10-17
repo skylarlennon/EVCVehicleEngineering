@@ -15,14 +15,15 @@ mMech = 78.821;                             %kg
 mElec = 23.869;                             %kg
 mCar = mMech + mElec;                       %kg 
 mdriver = 70.0;                             %kg
-mtot = mCar + mdriver;                      %kg         
+% mtot = mCar + mdriver;                      %kg         
+mtot = 170;
 g = 9.8;                                    %m/s^2 (Gravity)
 rho = 1.23;                                 %kg/m^3 (Density of Air)
-C_d = 0.17;                                 %(Coefficient of drag)                   
+C_d = 0.15;                                 %(Coefficient of drag)                   
 C_r = 0.00378;                              %(Rolling resistance coefficient)
-A = 0.951;                                  %m^2 (Cross sectional area)
-theta = (2*pi)/72;                          %Radians (Road Gradient) 
-Voltage = 48;                               %V (Bus/Battery Voltage)
+A = 0.70;                                   %m^2 (Cross sectional area)
+theta = (2*pi)/36;                          %Radians (Road Gradient) 
+Voltage = 50;                               %V (Bus/Battery Voltage)
 accel = 0.5;                                %m/s^2
 v = accel.*t;                               %m/s
 velo = 7.6;                                 %17mph
@@ -74,6 +75,19 @@ flat_I2R_losses = flat_current.^2.*busbar_resistance;
 total_flat_power_draw = flat_I2R_losses + flat_motor_input_power + est_accessory_elec_power_draw;
 
 %% Plots
+figure(10)
+hold on
+plot(t,accel_power_road,LineWidth=2);
+plot(t,hill_power_road,LineWidth=2);
+plot(t,flat_power_road,LineWidth=2);
+title("Ceddar Tractive Power","FontSize",12)
+xlabel('Time (s)')
+ylabel('Power (W)')
+ylim([0 max(hill_power_road)*1.1])
+legend("0.5m/s^2 Acceleration", "17mph, 10 Degree Hill","17mph, Flat Ground","FontSize",10);
+grid on
+hold off
+
 figure(1)
 hold on
 plot(t,F_tractive_accel,LineWidth=2);
@@ -83,7 +97,7 @@ title("Ceddar Tractive Forces","FontSize",12)
 xlabel('Time (s)')
 ylabel('Force (N)')
 ylim([0 max(F_tractive_hill)*1.1])
-legend("0.5m/s^2 Acceleration", "17mph, 5 Degree Hill","17mph, Flat Ground","FontSize",10);
+legend("0.5m/s^2 Acceleration", "17mph, 10 Degree Hill","17mph, Flat Ground","FontSize",10);
 grid on
 hold off
 
@@ -97,7 +111,7 @@ title("Cedar Power Draw","FontSize",12);
 xlabel("Time (s)");
 ylabel("Power (W)");
 xlim([0 30])
-legend("0.5m/s^2 Acceleration", "17mph, 5 Degree Hill","17mph, Flat Ground","FontSize",10);
+legend("0.5m/s^2 Acceleration", "17mph, 10 Degree Hill","17mph, Flat Ground","FontSize",10);
 grid on
 hold off
 
@@ -110,6 +124,6 @@ title("Cedar Current Draw","FontSize",12);
 xlabel("Time (s)");
 ylabel("Current (A)");
 xlim([0 30])
-legend("0.5m/s^2 Acceleration", "17mph, 5 Degree Hill","17mph, Flat Ground","FontSize",10);
+legend("0.5m/s^2 Acceleration", "17mph, 10 Degree Hill","17mph, Flat Ground","FontSize",10);
 grid on
 hold off
