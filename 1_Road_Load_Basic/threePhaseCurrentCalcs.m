@@ -17,7 +17,7 @@ theta = linspace(0,2*pi,1000);
 I_nominal = P_nominal_draw/V_bat;
 I_max = P_max_draw/V_bat;
 
-I_d_nominal = I_nominal*cos(theta);
+I_d_nominal = I_nominal*cos(theta); % underlying assumption...
 I_q_nominal = I_nominal*sin(theta);
 
 I_d_max = I_max*cos(theta);

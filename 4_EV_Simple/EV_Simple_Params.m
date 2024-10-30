@@ -1,10 +1,7 @@
-%% EV Simple Parameters
-% Run this file to fill the workspace with the vehicle parameters, load the
-% drive cycle, run the EV_Simple Simulink simulation, and plot the results
+%% EV Simple
+%TODO: ADD DESCRIPTION HERE
 clc;clear;close all
-
-%% Drive cycle input data
-% Load the time-speed data from the spreadsheet
+%% Load Drive Cycle Data
 driveCycleData = readmatrix('time_speed_elevation_distance_theta_data.xlsx');
 
 % Extract time and speed columns
@@ -20,17 +17,18 @@ dataSize = length(speed);
 StopTime = time(end);
 numLaps = 10;
 
-%% Model Parameters
-%PID Controller
+%% Set Model Parameters
+
+% PID Controller
 P_Driver = 225;
 I_Driver = 0.40;
 D_Driver = 0;
 
-%Environment
+% Environment
 airDensity = 1.293;
 gravity = 9.81;
 
-%Vehicle
+% Vehicle
 maxBrakeForce = -400; %N
 rollingResistCoeff = 0.01;
 massVeh = 173; %kg
@@ -38,26 +36,26 @@ aeroDragCoeff = 0.17;
 frontArea = 0.951; %m^2
 cdaf = airDensity*aeroDragCoeff;
 
-%Motor (KDE Direct 7208XF)
+% Motor (KDE Direct 7208XF)
 motorMaxTorque = 15;
 motorMaxPower = 2e3;
-motorMaxSpeed = 2000/60*2*pi; %radps
+MotorMaxSpeed = 2000/60*2*pi; %radps
 
-%Drivetrain
-r_wheel = .254; %radius of wheel
+% Drivetrain
+r_wheel = 0.3048;
 Ndriving = 1; 
 Ndriven = 4;
-GR = Ndriven/Ndriving; %teeth driving / teeth driven
-%To calculate drivetrain losses
+GR = Ndriven/Ndriving;
 Spinloss = 6;
 
-%For motor efficiency calculations
+% Motor Efficiency Parameters
+% TODO: Make this in agreement w the KDE Direct Motor
 MotorKc = 0.0452;
 MotorKw = 5.0664e-5;
 MotorKi = 0.0167;
 MotorC = 628.2974;
 
-%Battery
+% Battery
 AccessoryLoad = 100;
 internalResistance = 0.05;
 openCircuitVoltage = 52;
@@ -86,7 +84,7 @@ drivelinePowerLossOut = results(:,16);
 drivelineLossesOutkWh = results(:,17);
 drivelineLossesOutJ = results(:,18);
 drivelineTorqueOut = results(:,19); 
-% motorSpeedOut1 = results(:,20); redundant
+motorSpeedOut1 = results(:,20); 
 netTractiveForceOut = results(:,21);
 tractivePowerOut = results(:,22);
 totalTractiveEnergyOutkWh = results(:,23);
@@ -98,8 +96,6 @@ vehPosOut = results(:,28);
 
 %% Plot Drive Cycle Adherance Over Time
 figure(1)
-
-subplot(2,1,1)
 grid on
 hold on
 
@@ -120,13 +116,68 @@ xlim([0 tout(end)/numLaps*3])
 xlabel('Time (s)')
 legend('Drive Cycle Velocity','Simulated Velocity','Elevation')
 title('EV Simple Drive Cycle Adherance Over Time')
-%calculate the drive cycle adherance %
+% calculate the drive cycle adherance %
 total_error = sum(abs(speedCommand - speedVehicle));
 total_adherance = sum(abs(speedCommand));
 EVSimple_drive_cycle_adherance = (1-(total_error/total_adherance))*100
 
-%% Plot Tractive Force Over Time w Elevation
-subplot(2,1,2)
+%% Plot Motor's Torque Speed Operating Points for Drive Cycle
+% Calculate the speed at which the torque starts to decrease
+thresholdSpeed = motorMaxPower / motorMaxTorque;
+envelopeSpeed = linspace(0, MotorMaxSpeed, 1000); % Speed from 0 to maxSpeed
+% Calculate torque
+envelopeTorque = zeros(size(envelopeSpeed));
+for i = 1:length(envelopeSpeed)
+    if envelopeSpeed(i) <= thresholdSpeed
+        envelopeTorque(i) = motorMaxTorque;
+    else
+        envelopeTorque(i) = motorMaxPower / envelopeSpeed(i);
+    end
+end
+
+figure(2)
+grid on
+xlabel('Speed (radps)')
+ylabel('Torque (Nm)')
+xlim([0 MotorMaxSpeed])
+ylim([0 motorMaxTorque])
+legend('Torque-Speed Envelope', 'Torque-Speed Operating Points')
+titleString = sprintf('Torque Speed Data for %d Nm, %d kW Motor',motorMaxTorque, motorMaxPower/1e3);
+title(titleString)
+hold on
+plot(envelopeSpeed, envelopeTorque, 'LineWidth', 2, 'DisplayName', 'Torque-Speed Envelope'); % The envelope line
+scatter(motorSpeedOut,motorTorqueOut)
+hold off
+
+% Uncomment the following lines and comment the above lines from 'figure(3)
+% to 'hold off' in order to see an animation of the torque speed operating points of the
+% motor over the drive cycle.
+
+% TODO: Figure out why it slows down near the end of the simulation
+% figure(3)
+% hold on
+% plt = plot(envelopeSpeed, envelopeTorque, 'LineWidth', 2, 'DisplayName', 'Torque-Speed Envelope'); % The envelope line
+% grid on
+% xlabel('Speed (radps)')
+% ylabel('Torque (Nm)')
+% xlim([0 MotorMaxSpeed])
+% ylim([0 motorMaxTorque])
+% legend('show') % Ensure the legend only includes the envelope line
+% titleString = sprintf('Torque Speed Data for %d Nm, %d kW Motor', motorMaxTorque, motorMaxPower/1e3);
+% title(titleString)
+% 
+% % Loop to plot the data points sequentially
+% for i = 1:length(motorTorqueOut)
+%     % Plot the current data point without adding to the legend
+%     scatter(motorSpeedOut(i), motorTorqueOut(i), 'filled', 'MarkerFaceColor', 'b', 'HandleVisibility', 'off');
+% 
+%     pause(0.01); % Pause to create the animation effect
+% end
+% hold off
+
+
+%% Plot Tractive & Braking Forces Over Time
+figure(3)
 grid on
 hold on
 
@@ -148,140 +199,33 @@ xlabel('Time (s)')
 legend('Positive Tractive Force','Friction Braking Force','Elevation')
 title('EV Simple Motor Tractive Force Over Time')
 
-% TODO: Drive Cycle Adherance w Distance
-% figure(2)
-% grid on
-% hold on
-% plot(distance, speed)
-% plot(vehPosOut, speedVehicle)
-% hold off
-% xlabel('Distance (m)')
-% ylabel('Speed (m/s)')
-% legend('Drive Cycle Speed','Vehicle Speed')
-% title('Drive Cycle Adherance')
 
-% % Torque Speed
-% % Calculate the speed at which the torque starts to decrease
-% thresholdSpeed = MotorMaxPower / MotorMaxTorque;
-% envelopeSpeed = linspace(0, MotorMaxSpeed, 1000); % Speed from 0 to maxSpeed
-% % Calculate torque
-% envelopeTorque = zeros(size(envelopeSpeed));
-% for i = 1:length(envelopeSpeed)
-%     if envelopeSpeed(i) <= thresholdSpeed
-%         envelopeTorque(i) = MotorMaxTorque;
-%     else
-%         envelopeTorque(i) = MotorMaxPower / envelopeSpeed(i);
-%     end
-% end
-% 
-% figure(4)
-% grid on
-% xlabel('Speed (radps)')
-% ylabel('Torque (Nm)')
-% xlim([0 MotorMaxSpeed])
-% ylim([0 MotorMaxTorque])
-% legend('Torque-Speed Envelope', 'Torque-Speed Operating Points')
-% titleString = sprintf('Torque Speed Data for %d Nm, %d kW Motor',MotorMaxTorque, MotorMaxPower/1e3);
-% title(titleString)
-% hold on
-% plot(envelopeSpeed, envelopeTorque, 'LineWidth', 2, 'DisplayName', 'Torque-Speed Envelope'); % The envelope line
-% scatter(motorSpeedOut,motorTorqueOut)
-% hold off
+%% Plot Output Power & Energy Over Time
+figure(4)
+%Tractive Power Out kW
+subplot(2,2,1)
+plot(simTime, tractivePowerOut)
+xlabel('Time (s)')
+ylabel('Power (kW)')
+grid on
 
+%Cumulative Tractive Energy kWh
+subplot(2,2,2)
+plot(simTime, totalTractiveEnergyOutkWh)
+xlabel('Time (s)')
+ylabel('Cumulative Total Energy (kWh)')
+grid on
 
-% figure(4)
-% grid on
-% hold on 
-% yyaxis left
-% ylabel('Power (W)')
-% plot(tout, motorPowerOutput)
-% 
-% yyaxis right
-% ylabel('Speed (rad/s)')
-% plot(tout, motorSpeedOut)
-% hold off
-% xlabel('Time (s)')
-% legend('Power', 'Speed')
-% xlim([0 250])
+%Cumulative Propelling Energy J
+subplot(2,2,3)
+plot(simTime, propellingEnergyOut)
+xlabel('Time (s)')
+ylabel('Cumulative Total Propelling Energy (J)')
+grid on
 
-% figure(3)
-% hold on
-% plt = plot(envelopeSpeed, envelopeTorque, 'LineWidth', 2, 'DisplayName', 'Torque-Speed Envelope'); % The envelope line
-% grid on
-% xlabel('Speed (radps)')
-% ylabel('Torque (Nm)')
-% xlim([0 MotorMaxSpeed])
-% ylim([0 MotorMaxTorque])
-% legend('show') % Ensure the legend only includes the envelope line
-% titleString = sprintf('Torque Speed Data for %d Nm, %d kW Motor', MotorMaxTorque, MotorMaxPower/1e3);
-% title(titleString)
-% 
-% % Loop to plot the data points sequentially
-% for i = 1:length(motorTorqueOut)
-%     % Plot the current data point without adding to the legend
-%     scatter(motorSpeedOut(i), motorTorqueOut(i), 'filled', 'MarkerFaceColor', 'b', 'HandleVisibility', 'off');
-% 
-%     pause(0.01); % Pause to create the animation effect
-% end
-% 
-% hold off
-
-%Distance vs Elevation & Distance vs Speed
-% figure(4)
-% hold on
-% yyaxis left
-% plot(distance, elevation)
-% ylabel('Relative Elevation (m)')
-% 
-% yyaxis right
-% plot(distance,speed)
-% ylabel('Drive Cycle Speed')
-% xlim([0 1440])
-% hold off
-% grid on
-% 
-% 
-% figure(5)
-% %Total Tractive Power
-% subplot(3,2,1)
-% plot(simTime, results(:,1))
-% xlabel('Time (s)')
-% ylabel('Power (W)')
-% grid on
-% 
-% %Total Tractive Energy kWh
-% subplot(3,2,2)
-% plot(simTime, results(:,2))
-% xlabel('Time (s)')
-% ylabel('Energy (kWh)')
-% grid on
-% 
-% %Propelling Energy
-% subplot(3,2,3)
-% plot(simTime, results(:,3))
-% xlabel('Time (s)')
-% ylabel('Propelling Energy (J)')
-% grid on
-% 
-% %Braking Energy
-% subplot(3,2,4)
-% plot(simTime, results(:,4))
-% xlabel('Time (s)')
-% ylabel('Braking Energy (J)')
-% grid on
-% 
-% %Vehicle Position
-% subplot(3,2,5)
-% plot(simTime, results(:,5))
-% xlabel('Time (s)')
-% ylabel('Vehicle Position (m)')
-% grid on
-% 
-% %Vehicle Velocity
-% subplot(3,2,6)
-% plot(simTime, results(:,6))
-% xlabel('Time (s)')
-% ylabel('Velocity (m/s)')
-% grid on
-% 
-% 
+%Cumulative Braking Energy
+subplot(2,2,4)
+plot(simTime, brakingEnergyOut)
+xlabel('Time (s)')
+ylabel('Cumulative Total Braking Energy (J)')
+grid on
