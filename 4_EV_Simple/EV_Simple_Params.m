@@ -206,26 +206,30 @@ figure(4)
 subplot(2,2,1)
 plot(simTime, tractivePowerOut)
 xlabel('Time (s)')
-ylabel('Power (kW)')
+ylabel('Tractive Power (kW)')
 grid on
 
 %Cumulative Tractive Energy kWh
 subplot(2,2,2)
 plot(simTime, totalTractiveEnergyOutkWh)
 xlabel('Time (s)')
-ylabel('Cumulative Total Energy (kWh)')
+ylabel('Tractive Energy (kWh)')
 grid on
 
 %Cumulative Propelling Energy J
 subplot(2,2,3)
 plot(simTime, propellingEnergyOut)
 xlabel('Time (s)')
-ylabel('Cumulative Total Propelling Energy (J)')
+ylabel('Propelling Energy (kWh)')
 grid on
 
 %Cumulative Braking Energy
 subplot(2,2,4)
 plot(simTime, brakingEnergyOut)
 xlabel('Time (s)')
-ylabel('Cumulative Total Braking Energy (J)')
+ylabel('Braking Energy (kWh)')
 grid on
+
+total_dist_mi = distance(end)*0.000621371 %0.000621371 mi/m
+total_efficiency_miles_per_kWh = total_dist_mi/propellingEnergyOut(end)
+total_efficiency_mpge = total_efficiency_miles_per_kWh*33.705
