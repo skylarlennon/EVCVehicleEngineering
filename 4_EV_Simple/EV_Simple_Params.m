@@ -20,7 +20,7 @@ numLaps = 10;
 %% Set Model Parameters
 
 % PID Controller
-P_Driver = 225;
+P_Driver = 150;
 I_Driver = 0.40;
 D_Driver = 0;
 
@@ -31,7 +31,7 @@ gravity = 9.81;
 % Vehicle
 maxBrakeForce = -400; %N
 rollingResistCoeff = 0.01;
-massVeh = 173; %kg
+massVeh = 130; %kg
 aeroDragCoeff = 0.17;
 frontArea = 0.951; %m^2
 cdaf = airDensity*aeroDragCoeff;
