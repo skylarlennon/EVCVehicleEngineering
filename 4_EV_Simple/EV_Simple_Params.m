@@ -233,3 +233,6 @@ grid on
 total_dist_mi = distance(end)*0.000621371 %0.000621371 mi/m
 total_efficiency_miles_per_kWh = total_dist_mi/propellingEnergyOut(end)
 total_efficiency_mpge = total_efficiency_miles_per_kWh*33.705
+
+
+frictionBrakingForceOut1
